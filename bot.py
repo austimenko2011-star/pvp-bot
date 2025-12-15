@@ -4,40 +4,44 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
+from dotenv import load_dotenv
 
 # -----------------------------
-# Получение токена через переменную окружения
+# Завантажуємо змінні оточення з .env
 # -----------------------------
+load_dotenv()
 API_TOKEN = os.getenv("BOT_TOKEN")
 
 if not API_TOKEN:
-    raise ValueError("BOT_TOKEN не задан! Задайте переменную окружения с токеном.")
+    raise ValueError("BOT_TOKEN не заданий! Задайте змінну оточення або .env файл.")
 
 bot = Bot(token=API_TOKEN)
 router = Dispatcher(storage=MemoryStorage())
 
-# Словарь для пользователей, оставляющих фидбек
+# -----------------------------
+# Для фідбеку користувачів
+# -----------------------------
 feedback_users = {}
 
-# ---------- Клавиатуры ----------
+# ---------- Клавіатури ----------
 start_keyboard = types.ReplyKeyboardMarkup(
-    keyboard=[[types.KeyboardButton(text="⚛️ ATLANT 3D")]],
+    keyboard=[[types.KeyboardButton(text="⚛️ PvP")]],
     resize_keyboard=True
 )
 
 main_menu = types.ReplyKeyboardMarkup(
     keyboard=[
-        [types.KeyboardButton(text="🧠 Что мы делаем")],
-        [types.KeyboardButton(text="🧪 Где используется")],
+        [types.KeyboardButton(text="🧠 Що ми робимо")],
+        [types.KeyboardButton(text="🧪 Де використовується")],
         [types.KeyboardButton(text="👥 Для кого")],
-        [types.KeyboardButton(text="📩 Связаться с нами")],
-        [types.KeyboardButton(text="💬 Оставить фидбек")]
+        [types.KeyboardButton(text="📩 Зв’язатися з нами")],
+        [types.KeyboardButton(text="💬 Залишити фідбек")]
     ],
     resize_keyboard=True
 )
 
 back_to_menu = types.ReplyKeyboardMarkup(
-    keyboard=[[types.KeyboardButton(text="🏠 Главное меню")]],
+    keyboard=[[types.KeyboardButton(text="🏠 Головне меню")]],
     resize_keyboard=True
 )
 
@@ -45,13 +49,13 @@ back_to_menu = types.ReplyKeyboardMarkup(
 @router.message(Command("start"))
 async def start(message: types.Message):
     user = message.from_user
-    print(f"NEW USER → ID:{user.id}, @{user.username}, {user.first_name}")
+    print(f"НОВИЙ КОРИСТУВАЧ → ID:{user.id}, @{user.username}, {user.first_name}")
 
     welcome_text = (
         "\n\n\n\n\n"
-        "🎮 *Мы — команда PvP, или портал в ад.*\n\n"
-        "Нам важен ваш фидбек, чтобы делать наш стартап лучше.\n\n"
-        "Нажмите кнопку ниже, чтобы узнать больше о нашем стартапе."
+        "🎮 *Ми — команда PvP, або портал в пекло.*\n\n"
+        "Нам важливий ваш фідбек, щоб робити наш стартап кращим.\n\n"
+        "Натисніть кнопку нижче, щоб дізнатися більше про наш стартап."
     )
     await message.answer(
         welcome_text,
@@ -59,74 +63,74 @@ async def start(message: types.Message):
         reply_markup=start_keyboard
     )
 
-# ---------- Кнопка ATLANT 3D ----------
-@router.message(F.text == "⚛️ ATLANT 3D")
+# ---------- Кнопка PvP ----------
+@router.message(F.text == "⚛️ PvP")
 async def open_menu(message: types.Message):
-    await message.answer("Главное меню:", reply_markup=main_menu)
+    await message.answer("Головне меню:", reply_markup=main_menu)
 
-# ---------- Другие кнопки ----------
-@router.message(F.text == "🧠 Что мы делаем")
+# ---------- Інші кнопки ----------
+@router.message(F.text == "🧠 Що ми робимо")
 async def what_we_do(message: types.Message):
     await message.answer(
-        "PvP — deep tech стартап, создающий технологию атомной печати "
-        "для микро- и наноструктур без дорогих фабрик.",
+        "PvP — deep tech стартап, що створює технологію атомного друку "
+        "для мікро- та наноструктур без дорогих фабрик.",
         reply_markup=back_to_menu
     )
 
-@router.message(F.text == "🧪 Где используется")
+@router.message(F.text == "🧪 Де використовується")
 async def where_used(message: types.Message):
     await message.answer(
-        "Сферы применения PvP:\n"
-        "• сенсоры\n"
-        "• микроэлектроника\n"
-        "• фотоника\n"
-        "• космические технологии",
+        "Сфери застосування PvP:\n"
+        "• сенсори\n"
+        "• мікроелектроніка\n"
+        "• фотоніка\n"
+        "• космічні технології",
         reply_markup=back_to_menu
     )
 
 @router.message(F.text == "👥 Для кого")
 async def for_whom(message: types.Message):
     await message.answer(
-        "Наше решение для:\n"
-        "• инженеров и R&D команд\n"
-        "• стартапов\n"
-        "• университетов и лабораторий\n"
-        "• технологических компаний",
+        "Наше рішення для:\n"
+        "• інженерів та R&D команд\n"
+        "• стартапів\n"
+        "• університетів та лабораторій\n"
+        "• технологічних компаній",
         reply_markup=back_to_menu
     )
 
-@router.message(F.text == "📩 Связаться с нами")
+@router.message(F.text == "📩 Зв’язатися з нами")
 async def contact(message: types.Message):
     await message.answer(
-        "Связаться с нами можно через Telegram:\n"
+        "Зв’язатися з нами можна через Telegram:\n"
         "• @duu_sk (Founder)\n"
         "• @palenuch (CO-Founder)",
         reply_markup=back_to_menu
     )
 
-# ---------- Фидбек ----------
-@router.message(F.text == "💬 Оставить фидбек")
+# ---------- Фідбек ----------
+@router.message(F.text == "💬 Залишити фідбек")
 async def ask_feedback(message: types.Message):
-    await message.answer("Напишите ваш фидбек в ответ на это сообщение.")
+    await message.answer("Напишіть ваш фідбек у відповідь на це повідомлення.")
     feedback_users[message.from_user.id] = True
 
-# ---------- Универсальный обработчик ----------
+# ---------- Універсальний обробник ----------
 @router.message()
 async def handle_all_messages(message: types.Message):
     user_id = message.from_user.id
     text = message.text
 
-    # Кнопка "Главное меню"
-    if text == "🏠 Главное меню":
-        await message.answer("Главное меню:", reply_markup=main_menu)
+    # Головне меню
+    if text == "🏠 Головне меню":
+        await message.answer("Головне меню:", reply_markup=main_menu)
         return
 
-    # Фидбек
+    # Фідбек
     if feedback_users.get(user_id):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         user = message.from_user
         print(f"[{now}] FEEDBACK → ID:{user.id}, @{user.username}, {user.first_name}: {text}")
-        await message.answer("Спасибо за ваш фидбек! ❤️", reply_markup=main_menu)
+        await message.answer("Дякуємо за ваш фідбек! ❤️", reply_markup=main_menu)
         feedback_users.pop(user_id)
         return
 
