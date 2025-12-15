@@ -5,22 +5,30 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
+import gspread
 
 # -----------------------------
 # Завантажуємо змінні оточення з .env
 # -----------------------------
 load_dotenv()
 API_TOKEN = os.getenv("BOT_TOKEN")
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
+GOOGLE_CREDS_FILE = os.getenv("GOOGLE_CREDENTIALS_FILE")
 
 if not API_TOKEN:
-    raise ValueError("BOT_TOKEN не заданий! Задайте змінну оточення або .env файл.")
+    raise ValueError("BOT_TOKEN не заданий! Додайте його у .env")
+if not GOOGLE_SHEET_ID or not GOOGLE_CREDS_FILE:
+    raise ValueError("Налаштуйте Google Sheets: GOOGLE_SHEET_ID та GOOGLE_CREDENTIALS_FILE у .env")
+
+# -----------------------------
+# Підключаємо Google Sheets
+# -----------------------------
+gc = gspread.service_account(filename=GOOGLE_CREDS_FILE)
+sheet = gc.open_by_key(GOOGLE_SHEET_ID).sheet1
 
 bot = Bot(token=API_TOKEN)
 router = Dispatcher(storage=MemoryStorage())
 
-# -----------------------------
-# Для фідбеку користувачів
-# -----------------------------
 feedback_users = {}
 
 # ---------- Клавіатури ----------
@@ -120,16 +128,18 @@ async def handle_all_messages(message: types.Message):
     user_id = message.from_user.id
     text = message.text
 
-    # Головне меню
     if text == "🏠 Головне меню":
         await message.answer("Головне меню:", reply_markup=main_menu)
         return
 
-    # Фідбек
     if feedback_users.get(user_id):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         user = message.from_user
         print(f"[{now}] FEEDBACK → ID:{user.id}, @{user.username}, {user.first_name}: {text}")
+
+        # Запис у Google Sheets
+        sheet.append_row([now, user.id, user.username or "-", user.first_name, text])
+
         await message.answer("Дякуємо за ваш фідбек! ❤️", reply_markup=main_menu)
         feedback_users.pop(user_id)
         return
@@ -139,28 +149,4 @@ async def main():
     await router.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
-import os
-from aiohttp import web
-
-async def handle(request):
-    return web.Response(text="Bot is running!")
-
-app = web.Application()
-app.router.add_get("/", handle)
-
-# Бот працює в asyncio
-async def main():
-    # Запуск веб-сервера на Render
-    port = int(os.environ.get("PORT", 5000))  # Render дає змінну PORT
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", port)
-    await site.start()
-
-    # Запуск бота
-    await router.start_polling(bot)
-
-if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
