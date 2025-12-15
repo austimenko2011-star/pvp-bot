@@ -29,7 +29,7 @@ feedback_users = {}
 
 # ---------- Клавіатури ----------
 start_keyboard = types.ReplyKeyboardMarkup(
-    keyboard=[[types.KeyboardButton(text="⚛️ PvP")]],
+    keyboard=[[types.KeyboardButton(text="⚛️ ATLANT 3D")]],
     resize_keyboard=True
 )
 
