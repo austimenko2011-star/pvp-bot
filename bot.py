@@ -140,3 +140,27 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+import os
+from aiohttp import web
+
+async def handle(request):
+    return web.Response(text="Bot is running!")
+
+app = web.Application()
+app.router.add_get("/", handle)
+
+# Бот працює в asyncio
+async def main():
+    # Запуск веб-сервера на Render
+    port = int(os.environ.get("PORT", 5000))  # Render дає змінну PORT
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+    # Запуск бота
+    await router.start_polling(bot)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())
